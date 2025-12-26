@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:grocery_app/provider/whishlist_provider.dart';
+import 'package:grocery_app/services/cart_provider.dart';
 import 'package:provider/provider.dart';
-import '../provider/whishlist_provider.dart';
-import '../services/cart_provider.dart';
+
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
