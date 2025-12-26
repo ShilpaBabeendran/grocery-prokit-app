@@ -3,8 +3,7 @@ import 'package:grocery_app/services/cart_provider.dart';
 import 'package:grocery_app/provider/whishlist_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:grocery_app/models/product_model.dart';
-// import '../models/product_model.dart';
-// import '../provider/wishlist_provider.dart';
+
 
 class ProductCard extends StatelessWidget {
   final ProductModel p;

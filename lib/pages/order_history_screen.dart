@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_app/provider/order_provider.dart';
+import 'package:grocery_app/models/product_model.dart';
 import 'package:provider/provider.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
@@ -27,32 +28,25 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
   @override
   Widget build(BuildContext context) {
-    final orderProvider = context.read<OrderProvider>();
+    final orderProvider = context.watch<OrderProvider>();
 
     return Scaffold(
+    
       appBar: AppBar(
-        backgroundColor: const Color(0xff1abc9c),
+        backgroundColor: const Color(0xFF00C853),
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Color(0xffffffff)),
+          icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          "Order History",
-          style: TextStyle(color: Color(0xffffffff)),
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.search, color: Color(0xffffffff)),
-          ),
-        ],
+        title: const Text("Order History",
+            style: TextStyle(color: Colors.white)),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
-          labelColor: Color(0xffffffff),
+          labelColor: Colors.white,
           tabs: const [
             Tab(text: "COMPLETED"),
-            Tab(text: "UP COMMING"),
+            Tab(text: "UPCOMING"),
             Tab(text: "CANCELED"),
           ],
         ),
@@ -60,104 +54,105 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          /// ✅ COMPLETED ORDERS
+          /// COMPLETED ORDERS
           StreamBuilder(
             stream: orderProvider.fetchOrders(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+              if (snapshot.connectionState ==
+                  ConnectionState.waiting) {
+                return const Center(
+                    child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text("No completed orders",
+                     ),
+                );
               }
 
               final orders = snapshot.data!;
-
-              if (orders.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "No completed orders",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
-              }
 
               return ListView.builder(
                 itemCount: orders.length,
                 itemBuilder: (_, index) {
                   final order = orders[index];
-
-                  /// 🔥 FIXED HERE
                   final dateTime = order.date.toDate();
+
                   final date =
                       "${dateTime.day} ${_getMonth(dateTime.month)} ${dateTime.year}";
 
                   return Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.grey[900],
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(),
+                      
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                    
+                        /// PRODUCT LIST
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: order.items.length,
+                          itemBuilder: (_, i) {
+                            final item = order.items[i];
+
+                            return ListTile(
+                              leading: Image.network(
+                                item.product.image,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                              title: Text(
+                                item.product.name,
+                                style: const TextStyle(
+                                    ),
+                              ),
+                              subtitle: Text(
+                                "₹${item.product.price} × ${item.quantity}",
+                                style: const TextStyle(
+                                    color: Colors.grey),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 5),
+
+                        /// TOTAL + VIEW CART
                         Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
                           children: [
-                            const CircleAvatar(
-                              backgroundColor: Color(0xff1abc9c),
-                              child: Icon(
-                                Icons.shopping_cart,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
                             Text(
-                              date,
+                              "Total ₹${order.totalAmount}",
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  
+                                  fontWeight: FontWeight.bold),
                             ),
-                            const Spacer(),
+                            OutlinedButton(
+                              onPressed: () {
+                                _showCartDialog(context, order.items);
+                              },
+                              child: const Text("VIEW CART",
+                                  style:
+                                      TextStyle(color: Colors.green)),
+                            ),
                             IconButton(
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () {},
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.grey),
+                              onPressed: () async {
+                                await orderProvider
+                                    .deleteOrder(order.id);
+                              },
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          "Subtotal Rs. ${order.totalAmount}.00",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                          ),
-                        ),
-                        Text(
-                          "Total items: ${order.items.length}",
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey.shade400,
-                            ),
-                            onPressed: () {},
-                            child: const Text(
-                              "VIEW CART",
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -167,11 +162,43 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
             },
           ),
 
-          /// 🔄 UP COMMING
           const _EmptyTab(message: "No upcoming orders"),
-
-          /// ❌ CANCELED
           const _EmptyTab(message: "No canceled orders"),
+        ],
+      ),
+    );
+  }
+
+  void _showCartDialog(BuildContext context, List<CartItem> items) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Order Items"),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: items.length,
+            itemBuilder: (_, index) {
+              final item = items[index];
+              return ListTile(
+                leading: Image.network(
+                  item.product.image,
+                  width: 40,
+                  height: 40,
+                ),
+                title: Text(item.product.name),
+                subtitle: Text(
+                    "₹${item.product.price} × ${item.quantity}"),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
         ],
       ),
     );
@@ -199,16 +226,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
 class _EmptyTab extends StatelessWidget {
   final String message;
-
   const _EmptyTab({required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        message,
-        style: const TextStyle(color: Colors.white54, fontSize: 16),
-      ),
+      child: Text(message,
+          style: const TextStyle(color: Colors.white54)),
     );
   }
 }

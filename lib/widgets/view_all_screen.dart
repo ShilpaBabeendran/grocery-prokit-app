@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grocery_app/provider/product_provider.dart';
 import 'package:grocery_app/widgets/product_cart.dart';
 import 'package:provider/provider.dart';
-// import '../provider/product_provider.dart';
-// import '../widgets/product_card.dart';
+
 
 class ViewAllScreen extends StatelessWidget {
   const ViewAllScreen({super.key});

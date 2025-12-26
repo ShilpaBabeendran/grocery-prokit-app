@@ -9,17 +9,16 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<CartProvider>(context);
+    final cart = context.watch<CartProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Cart", style: TextStyle(color: Color(0xffffffff))),
+        title: const Text("Cart", style: TextStyle(color: Colors.white)),
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Color(0xffffffff)),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: const Icon(Icons.close, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
+        backgroundColor: const Color(0xFF00C853),
       ),
       body: cart.items.isEmpty
           ? const Center(child: Text("Cart is empty"))
@@ -35,6 +34,8 @@ class CartScreen extends StatelessWidget {
                         leading: Image.network(
                           cartItem.product.image,
                           width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
                         ),
                         title: Text(cartItem.product.name),
                         subtitle: Text(
@@ -45,12 +46,14 @@ class CartScreen extends StatelessWidget {
                           children: [
                             IconButton(
                               icon: const Icon(Icons.remove),
-                              onPressed: () => cart.decrementQty(cartItem),
+                              onPressed: () =>
+                                  cart.decrementQty(cartItem),
                             ),
                             Text(cartItem.quantity.toString()),
                             IconButton(
                               icon: const Icon(Icons.add),
-                              onPressed: () => cart.incrementQty(cartItem),
+                              onPressed: () =>
+                                  cart.incrementQty(cartItem),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete),
@@ -62,6 +65,8 @@ class CartScreen extends StatelessWidget {
                     },
                   ),
                 ),
+
+                /// BUY NOW SECTION
                 Container(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -73,13 +78,18 @@ class CartScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00C853),
+                          ),
                           onPressed: () async {
-                            final cartProvider = context.read<CartProvider>();
-                            final orderProvider = context.read<OrderProvider>();
+                            final cartProvider =
+                                context.read<CartProvider>();
+                            final orderProvider =
+                                context.read<OrderProvider>();
 
                             await orderProvider.placeOrder(
                               items: cartProvider.items,
@@ -93,14 +103,13 @@ class CartScreen extends StatelessWidget {
                             );
 
                             if (context.mounted) {
-                              Navigator.popUntil(
-                                context,
-                                (route) => route.isFirst,
-                              );
+                              Navigator.pop(context);
                             }
                           },
-
-                          child: const Text("Buy Now"),
+                          child: const Text(
+                            "Buy Now",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
                     ],
