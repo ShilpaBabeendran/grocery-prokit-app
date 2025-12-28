@@ -3,17 +3,17 @@ import 'package:grocery_app/models/product_model.dart';
 
 class OrderModel {
   final String id;
-  final Timestamp date;
-  final int totalAmount;
   final List<CartItem> items;
+  final double totalAmount;
+  final Timestamp date;
   final String status;
 
   OrderModel({
     required this.id,
-    required this.date,
-    required this.totalAmount,
     required this.items,
-    this.status = "completed",
+    required this.totalAmount,
+    required this.date,
+    required this.status,
   });
 
   Map<String, dynamic> toMap() {
@@ -25,15 +25,17 @@ class OrderModel {
     };
   }
 
-  factory OrderModel.fromFirestore(String id, Map<String, dynamic> data) {
+  factory OrderModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+
     return OrderModel(
-      id: id,
-      date: data['date'],
-      totalAmount: data['totalAmount'],
-      status: data['status'],
+      id: doc.id,
       items: (data['items'] as List)
           .map((e) => CartItem.fromMap(e))
           .toList(),
+      totalAmount: (data['totalAmount'] as num).toDouble(),
+      date: data['date'],
+      status: data['status'],
     );
   }
 

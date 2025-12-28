@@ -36,7 +36,7 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
       "updatedAt": Timestamp.now(),
     });
 
-    // ALSO save name & phone to users collection (for profile)
+    // SAVE DATAS
     await FirebaseFirestore.instance.collection('users').doc(uid).set({
       "name": nameController.text,
       "phone": phoneController.text,
@@ -99,14 +99,20 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
                   type: TextInputType.number,
                 ),
                 buildField("Landmark", landmarkController),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      saveAddress();
-                    }
-                  },
-                  child: const Text("Save Address"),
+                const SizedBox( height: 20),
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    
+                  ),
+                  child: OutlinedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        saveAddress();
+                      }
+                    },
+                    child: const Text("Save Address", style: TextStyle(color: Color(0xFF00C569))),
+                  ),
                 ),
               ],
             ),

@@ -14,6 +14,7 @@ class WishlistScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFF00C569),
         title: const Text("Wishlist", style: TextStyle(color: Color(0xffffffff)),),
         leading: IconButton(
           icon: const Icon(Icons.close, color: Color(0xffffffff),),

@@ -10,6 +10,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+
+  bool isPasswordHide = false;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -24,6 +26,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 116, 216, 170),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8),
@@ -31,6 +34,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+              Center(
+                child: Text(
+                  "Welcome",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20,),
+                ),
+              ),
+              SizedBox(height: 15),
+              Center(
+                child: Text(
+                  "Grocery Prokit",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 40),
+                ),
+              ),
+              SizedBox(height: 15),
               // Title
               const Center(
                 child: Text(
@@ -56,11 +74,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
               // PASSWORD FIELD
               TextFormField(
                 controller: passwordController,
-                obscureText: true, //hide pass
-                decoration: const InputDecoration(
+                obscureText: isPasswordHide, 
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
                   hintText: "Enter your password",
+                  suffixIcon: IconButton(
+                    icon: Icon( isPasswordHide? Icons.visibility : Icons.visibility_off),
+                    onPressed: (){
+                      setState(() {
+                        isPasswordHide =! isPasswordHide;
+                      }); 
+                  }), 
                 ),
               ),
 
@@ -85,14 +110,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     );
                     if (mounted) {
                       if (result == "Account Created") {
-                        Message.show(message: "Account Created");
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          "/home",
-                          (route) => false,
-                        );
+                        if (mounted) {
+                          await Message.show(message: "Account Created");
+                          if (mounted) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              "/home",
+                              (route) => false,
+                            );
+                          }
+                        }
                       } else {
-                        Message.show(message: "Error: $result");
+                        if (mounted) {
+                          await Message.show(message: "Error: $result");
+                        }
                       }
                     }
                   },

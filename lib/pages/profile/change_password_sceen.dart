@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grocery_app/auth/lgin_screen.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -22,6 +23,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     confirmPass.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: OutlinedButton(
                 onPressed: isLoading ? null : _changePassword,
                 child: isLoading
                     ? const SizedBox(
@@ -72,7 +74,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           strokeWidth: 2,
                         ),
                       )
-                    : const Text("Update Password"),
+                    : const Text("Update Password", style: TextStyle(color: Color(0xFF00C569)),),
               ),
             ),
           ],
@@ -109,7 +111,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         return;
       }
 
-      // 🔑 Re-authenticate user
+      // Re-authenticate user
       final credential = EmailAuthProvider.credential(
         email: user.email!,
         password: currentPass.text,
@@ -117,16 +119,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
       await user.reauthenticateWithCredential(credential);
 
-      // 🔐 Update password
+      // Update password
       await user.updatePassword(newPass.text);
 
-      // 🚪 Sign out user after password change
+      //  Sign out user after password change
       await FirebaseAuth.instance.signOut();
 
       _showMsg("Password updated. Please login again.");
 
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pushNamed(context, "/login");
       }
     } on FirebaseAuthException catch (e) {
       _showMsg(e.message ?? "Something went wrong");
@@ -138,4 +140,44 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   void _showMsg(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
+
+  // Future<void> _newPassword() async {
+  //   setState(() => isLoading = true);
+
+  //   try {
+  //     final user = FirebaseAuth.instance.currentUser;
+
+  //     if (user == null) {
+  //       throw Exception("User not logged in");
+  //     }
+
+  //     // 🔐 Update password
+  //     await user.updatePassword(newPass.text.trim());
+
+  //     // 🔄 Optional but recommended
+  //     await FirebaseAuth.instance.signOut();
+
+  //     if (mounted) {
+  //       Navigator.pushname
+  //         // (route) => false,
+  //       // );
+  //     }
+  //   } on FirebaseAuthException catch (e) {
+  //     String message = "Password update failed";
+
+  //     if (e.code == 'requires-recent-login') {
+  //       message = "Please login again to update password";
+  //     }
+
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text(message)),
+  //     );
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text(e.toString())),
+  //     );
+  //   } finally {
+  //     if (mounted) setState(() => isLoading = false);
+  //   }
+  // }
 }

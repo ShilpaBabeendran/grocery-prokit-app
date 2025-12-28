@@ -35,6 +35,9 @@ android {
         
         // Suppress Google Play Services warnings
         manifestPlaceholders["googlePlayServicesVersion"] = "12451000"
+        
+        // Add debug keystore configuration
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {

@@ -22,7 +22,10 @@ class ProfileScreen extends StatelessWidget {
 
     if (picked == null) return;
 
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    
+    final uid = user.uid;
     final file = File(picked.path);
 
     final ref = FirebaseStorage.instance
@@ -42,7 +45,20 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>();
-    final user = FirebaseAuth.instance.currentUser!;
+    final user = FirebaseAuth.instance.currentUser;
+    
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF00C853),
+          title: const Text("Store"),
+        ),
+        body: const Center(
+          child: Text("Please log in to view profile"),
+        ),
+      );
+    }
+    
     final uid = user.uid;
 
     return Scaffold(
@@ -177,7 +193,7 @@ class ProfileScreen extends StatelessWidget {
                       onTap: () async {
                         await FirebaseAuth.instance.signOut();
                         if (context.mounted) {
-                          Navigator.pushReplacementNamed(context, "/login");
+                          Navigator.pushNamed(context, "/login");
                         }
                       },
                     ),

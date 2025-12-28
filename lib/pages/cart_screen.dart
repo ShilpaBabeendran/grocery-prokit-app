@@ -4,19 +4,30 @@ import 'package:grocery_app/utils/flutter_toast.dart';
 import 'package:provider/provider.dart';
 import '../services/cart_provider.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  // bool isOrderPlaced = false;
+  // String? orderId;
 
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Cart", style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            setState(() {
+              Navigator.of(context).pop();
+            });
+          },
         ),
         backgroundColor: const Color(0xFF00C853),
       ),
@@ -44,17 +55,19 @@ class CartScreen extends StatelessWidget {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+
+
                             IconButton(
                               icon: const Icon(Icons.remove),
-                              onPressed: () =>
-                                  cart.decrementQty(cartItem),
+                              onPressed: () => cart.decrementQty(cartItem),
                             ),
                             Text(cartItem.quantity.toString()),
                             IconButton(
                               icon: const Icon(Icons.add),
-                              onPressed: () =>
-                                  cart.incrementQty(cartItem),
+                              onPressed: () => cart.incrementQty(cartItem),
                             ),
+
+                            //delete
                             IconButton(
                               icon: const Icon(Icons.delete),
                               onPressed: () => cart.remove(cartItem),
@@ -86,31 +99,25 @@ class CartScreen extends StatelessWidget {
                             backgroundColor: const Color(0xFF00C853),
                           ),
                           onPressed: () async {
-                            final cartProvider =
-                                context.read<CartProvider>();
-                            final orderProvider =
-                                context.read<OrderProvider>();
+                            final cartProvider = context.read<CartProvider>();
+                            final orderProvider = context.read<OrderProvider>();
+
+                            if (cartProvider.items.isEmpty) return;
 
                             await orderProvider.placeOrder(
                               items: cartProvider.items,
-                              total: cartProvider.totalPrice,
+                              total: cartProvider.totalPrice.toDouble(),
                             );
 
-                            cartProvider.clearCart();
+                            // cartProvider.clearCart();
 
-                            await Message.show(
-                              message: "Order placed successfully",
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Order placed successfully")),
                             );
-
-                            if (context.mounted) {
-                              Navigator.pop(context);
-                            }
                           },
-                          child: const Text(
-                            "Buy Now",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          child: const Text("Buy Now"),
                         ),
+
                       ),
                     ],
                   ),

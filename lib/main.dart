@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:isolate';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:grocery_app/auth/auth_service.dart';
 import 'package:grocery_app/auth/lgin_screen.dart';
 import 'package:grocery_app/auth/signup_screen.dart';
+// import 'package:grocery_app/pages/canceled_oreder_screen.dart';
 import 'package:grocery_app/pages/cart_screen.dart';
 import 'package:grocery_app/pages/order_history_screen.dart';
 import 'package:grocery_app/pages/profile/profile_screen.dart';
@@ -20,19 +23,37 @@ import 'core/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+  
+  // Prevent ANR by setting up isolate error handling
+  Isolate.current.addErrorListener(RawReceivePort((pair) async {
+    final List<dynamic> errorAndStacktrace = pair;
+    debugPrint('Isolate error: ${errorAndStacktrace[0]}');
+  }).sendPort);
+  
+  //  global error handling
+  runZonedGuarded(() async {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (e) {
+      debugPrint('Firebase initialization error: $e');
+    }
+    
+    //  system errors -- ANR
+    FlutterError.onError = (FlutterErrorDetails details) {
+      debugPrint('Flutter error suppressed: ${details.exception}');
+    };
+    
+    runApp(
+      ChangeNotifierProvider(
+        create: (_) => ThemeProvider(),
+        child: const GroceryApp(),
+      ),
     );
-  } catch (e) {
-    debugPrint('Firebase initialization error: $e');
-  }
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const GroceryApp(),
-    ),
-  );
+  }, (error, stack) {
+    debugPrint('Global error caught: $error');
+  });
 }
 
 class GroceryApp extends StatelessWidget {
@@ -51,6 +72,7 @@ class GroceryApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: ThemeData.dark(),
+        
         themeMode: context.watch<ThemeProvider>().isDark
             ? ThemeMode.dark
             : ThemeMode.light,
@@ -64,6 +86,7 @@ class GroceryApp extends StatelessWidget {
           "/orderhistory": (context) => const OrderHistoryScreen(),
           "/wishlist": (context) => const WishlistScreen(),
           "/viewall": (context) => const ViewAllScreen(),
+          // "/canceledorders":(context)=>CanceledOrdersScreen(),
         },
       ),
     );

@@ -3,17 +3,31 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_model.dart';
 
 class ProductProvider extends ChangeNotifier {
-  List<ProductModel> products = [];
+  List<ProductModel> _products = [];
+  bool _isLoading = false;
+
+  List<ProductModel> get products => _products;
+  bool get isLoading => _isLoading;
 
   Future<void> fetchProducts() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('products').get();
+    if (_isLoading) return;
 
-    products = snapshot.docs
-        .map((doc) => ProductModel.fromFirestore(doc.data(), doc.id))
-        .toList();
-
+    _isLoading = true;
     notifyListeners();
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .get();
+
+      _products = snapshot.docs
+          .map((doc) => ProductModel.fromFirestore(doc.data(), doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching products: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
-

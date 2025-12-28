@@ -36,9 +36,7 @@ class _TopNavigationBarState extends State<TopNavigationBar> {
               //shoping bag
               IconButton(
                 onPressed: () {
-                  setState(() {
-                    Navigator.pushNamed(context, "/cart");
-                  });
+                  Navigator.pushNamed(context, "/cart");
                 },
                 icon: Icon(Icons.shopping_bag, color: Colors.white),
               ),

@@ -8,6 +8,7 @@ class OrderCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   const OrderCard({
+    super.key,
     required this.date,
     required this.total,
     required this.itemsCount,

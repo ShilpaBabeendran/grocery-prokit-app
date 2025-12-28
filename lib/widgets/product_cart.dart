@@ -4,7 +4,6 @@ import 'package:grocery_app/provider/whishlist_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:grocery_app/models/product_model.dart';
 
-
 class ProductCard extends StatelessWidget {
   final ProductModel p;
 

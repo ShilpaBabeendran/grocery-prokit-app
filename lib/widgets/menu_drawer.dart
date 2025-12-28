@@ -3,19 +3,28 @@ import 'package:flutter/material.dart';
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
+  void _navigate(BuildContext context, String routeName) async {
+  Navigator.pop(context); // close drawer
+
+  await Future.delayed(const Duration(milliseconds: 200));
+
+  Navigator.pushReplacementNamed(context, routeName);
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 39, 173, 66),
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Color(0xFF00C569),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 SizedBox(height: 10),
                 Text(
                   "Welcome",
@@ -38,25 +47,19 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text("Home"),
-            onTap: () {
-              Navigator.pushNamed(context, "/home");
-            },
+            onTap: () => _navigate(context, "/home"),
           ),
 
           ListTile(
             leading: const Icon(Icons.favorite),
             title: const Text("Order History"),
-            onTap: () {
-              Navigator.pushNamed(context, "/orderhistory");
-            },
+            onTap: () => _navigate(context, "/orderhistory"),
           ),
 
           ListTile(
             leading: const Icon(Icons.shopping_cart),
             title: const Text("Go to Cart"),
-            onTap: () {
-              Navigator.pushNamed(context, "/cart");
-            },
+            onTap: () => _navigate(context, "/cart"),
           ),
         ],
       ),

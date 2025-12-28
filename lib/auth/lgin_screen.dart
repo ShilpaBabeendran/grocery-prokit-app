@@ -10,12 +10,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool isPassworVisible = false;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 116, 216, 170),
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(8),
@@ -50,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: emailController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  label: Text('email'),
+                  label: Text('Email'),
                   hintText: "Enter your email",
                 ),
               ),
@@ -60,10 +62,24 @@ class _LoginScreenState extends State<LoginScreen> {
               //pass
               TextFormField(
                 controller: passwordController,
+                obscureText: !isPassworVisible,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  label: Text('password'),
+                  label: Text('Password'),
                   hintText: "Enter your password",
+
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      isPassworVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isPassworVisible = !isPassworVisible;
+                      });
+                    },
+                  ),
                 ),
               ),
 
@@ -80,14 +96,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                     if (mounted) {
                       if (result == "Login Successful") {
-                        Message.show(message: "Login Successful");
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          "/home",
-                          (route) => false,
-                        );
+                        if (mounted) {
+                          await Message.show(message: "Login Successful");
+                          if (mounted) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              "/home",
+                              (route) => false,
+                            );
+                          }
+                        }
                       } else {
-                        Message.show(message: "Login Error: $result");
+                        if (mounted) {
+                          await Message.show(message: "Login Error: $result");
+                        }
                       }
                     }
                   },
@@ -101,7 +123,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Need an Account?'),
+                  Text(
+                    'Need an Account?',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, "/signup");
